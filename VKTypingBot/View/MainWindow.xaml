@@ -1,0 +1,100 @@
+﻿<Window x:Class="VKTypingBot.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:material="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialConv="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:models="clr-namespace:VKTypingBot.Models"
+        xmlns:viewmodel="clr-namespace:VKTypingBot.ViewModel"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        mc:Ignorable="d"
+        Title="VK Typing Bot"
+        Height="320"
+        Width="300"
+        ResizeMode="CanMinimize">
+
+    <Window.DataContext>
+        <viewmodel:MainVM/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <ObjectDataProvider x:Key="Peers" 
+                            MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:Peer"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="TypingTypes" 
+                            MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:TypingType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <materialConv:BooleanToVisibilityConverter x:Key="DefaultBooleanConverter"
+                                                   TrueValue="Collapsed"
+                                                   FalseValue="Visible"/>
+        <materialConv:BooleanToVisibilityConverter x:Key="RevDefaultBooleanConverter"
+                                                   TrueValue="Visible"
+                                                   FalseValue="Collapsed"/>
+
+        <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+            <Setter Property="material:HintAssist.IsFloating" Value="True"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+
+        <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}">
+            <Setter Property="material:HintAssist.IsFloating" Value="True"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+
+        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Margin="10">
+        <TextBox Text="{Binding Token, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                 material:HintAssist.Hint="Your API token"
+                 ToolTip="Lost API key? Click last button."/>
+
+        <ComboBox ItemsSource="{Binding Source={StaticResource Peers}}"
+                  SelectedItem="{Binding Peer}"
+                  material:HintAssist.Hint="Peer type"/>
+
+        <ComboBox ItemsSource="{Binding Source={StaticResource TypingTypes}}"
+                  SelectedItem="{Binding TypingType}"
+                  material:HintAssist.Hint="Typing type"
+                  ToolTip="Select 'Audiomessage' for your friends to they were in shock :)"/>
+
+        <TextBox Text="{Binding PeerID, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                 material:HintAssist.Hint="Peer ID (user, chat, community)"
+                 ToolTip="For user: just user id. For chat: 2000000000 + chat ID. For community: -ID (example: -1000)"/>
+
+        <Button Content="Start spam :)"
+                Visibility="{Binding IsStarted, Converter={StaticResource DefaultBooleanConverter}}"
+                Command="{Binding StartSpamCommand}"
+                ToolTip="OK, let's have fun."/>
+
+        <Button Content="Stop spam!"
+                Visibility="{Binding IsStarted, Converter={StaticResource RevDefaultBooleanConverter}}"
+                Command="{Binding StartSpamCommand.CancelCommand}"
+                ToolTip="Oh... Pls, STOP!"/>
+
+        <Button Content="I lost my API key :("
+                Command="{Binding HowToGetAPIKeyCommand}"
+                ToolTip="Click me! It's free :)"/>
+    </StackPanel>
+
+</Window>
